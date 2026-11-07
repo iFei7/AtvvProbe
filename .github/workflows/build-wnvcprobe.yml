@@ -22,6 +22,7 @@ jobs:
           armv7a-linux-androideabi28-clang -O2 -Wall -o wnvc_probe wnvc_probe.c -ldl -lm
           armv7a-linux-androideabi28-clang -O2 -Wall -o wnvc_probe2 wnvc_probe2.c -ldl -lm
           armv7a-linux-androideabi28-clang -O2 -Wall -o wnvc_probe3 wnvc_probe3.c -ldl -lm
+          armv7a-linux-androideabi28-clang -O2 -Wall -o wnvc_probe4 wnvc_probe4.c -ldl -lm
           ls -la wnvc_probe wnvc_probe2 wnvc_probe3
           file wnvc_probe wnvc_probe2 wnvc_probe3 || true
 
@@ -33,3 +34,4 @@ jobs:
             wnvc_probe
             wnvc_probe2
             wnvc_probe3
+            wnvc_probe4
