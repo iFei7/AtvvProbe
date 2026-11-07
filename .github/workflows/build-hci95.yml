@@ -1,0 +1,30 @@
+name: build-hci95
+on:
+  push:
+    branches: [hci95]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up NDK
+        run: |
+          wget -q https://dl.google.com/android/repository/android-ndk-r26d-linux.zip
+          unzip -q android-ndk-r26d-linux.zip
+          echo "$PWD/android-ndk-r26d/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+
+      - name: Build armv7 binary
+        run: |
+          armv7a-linux-androideabi28-clang -O2 -o hci95 tx6tmp/hci95.c || \
+          armv7a-linux-androideabi28-clang -O2 -o hci95 hci95.c
+          ls -la hci95
+          file hci95 || true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hci95
+          path: hci95
