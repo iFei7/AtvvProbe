@@ -16,15 +16,17 @@ jobs:
           unzip -q android-ndk-r26d-linux.zip
           echo "$PWD/android-ndk-r26d/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
 
-      - name: Build armv7 binary
+      - name: Build armv7 binaries
         run: |
-          armv7a-linux-androideabi28-clang -O2 -o hci95 tx6tmp/hci95.c || \
           armv7a-linux-androideabi28-clang -O2 -o hci95 hci95.c
-          ls -la hci95
-          file hci95 || true
+          armv7a-linux-androideabi28-clang -O2 -o hidrawinfo hidrawinfo.c
+          ls -la hci95 hidrawinfo
+          file hci95 hidrawinfo || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: hci95
-          path: hci95
+          path: |
+            hci95
+            hidrawinfo
