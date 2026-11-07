@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
+#include <sys/types.h>
 
 static int hexval(char c) {
     if (c >= '0' && c <= '9') return c - '0';
@@ -57,7 +58,7 @@ int main(int argc, char **argv) {
         int len = atoi(argv[4]);
         static unsigned char buf[65536];
         if (len > 65536) len = 65536;
-        if (pread(mem, buf, len, (off_t)addr) != len) {
+        if (pread64(mem, buf, len, (off64_t)addr) != len) {
             printf("pread err: %s\n", strerror(errno));
             if (errno == 0) printf("(partial read unsupported)\n");
         }
@@ -85,7 +86,7 @@ int main(int argc, char **argv) {
             while (cur < hi && hits < maxhits) {
                 size_t want = (hi - cur) < sizeof(rbuf) ? (size_t)(hi - cur) : sizeof(rbuf);
                 if (want < (size_t)plen) break;
-                ssize_t got = pread(mem, rbuf, want, (off_t)cur);
+                ssize_t got = pread64(mem, rbuf, want, (off64_t)cur);
                 if (got < (ssize_t)plen) break;
                 for (ssize_t i = 0; i + plen <= got; i++) {
                     if (rbuf[i] == pat[0] && memcmp(rbuf + i, pat, plen) == 0) {
@@ -110,7 +111,7 @@ int main(int argc, char **argv) {
         while (cur < addr + len) {
             size_t want = (addr + len - cur) < sizeof(rbuf) ? (size_t)(addr + len - cur) : sizeof(rbuf);
             if (want < (size_t)plen) break;
-            ssize_t got = pread(mem, rbuf, want, (off_t)cur);
+            ssize_t got = pread64(mem, rbuf, want, (off64_t)cur);
             if (got < (ssize_t)plen) break;
             for (ssize_t i = 0; i + plen <= got; i++) {
                 if (rbuf[i] == pat[0] && memcmp(rbuf + i, pat, plen) == 0) {
