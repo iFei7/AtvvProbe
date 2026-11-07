@@ -20,8 +20,9 @@ jobs:
         run: |
           armv7a-linux-androideabi28-clang -O2 -o hci95 hci95.c
           armv7a-linux-androideabi28-clang -O2 -o hidrawinfo hidrawinfo.c
-          ls -la hci95 hidrawinfo
-          file hci95 hidrawinfo || true
+          armv7a-linux-androideabi28-clang -O2 -o memscan memscan.c
+          ls -la hci95 hidrawinfo memscan
+          file hci95 hidrawinfo memscan || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -30,3 +31,4 @@ jobs:
           path: |
             hci95
             hidrawinfo
+            memscan
