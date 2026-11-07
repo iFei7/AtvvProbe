@@ -90,7 +90,7 @@ static int poke_buf(int pid, unsigned long addr, const unsigned char *buf, int l
     snprintf(path, sizeof(path), "/proc/%d/mem", pid);
     fd = open(path, O_WRONLY);
     if (fd < 0) return -1;
-    int r = pwrite(fd, buf, len, (off_t)addr);
+    int r = pwrite64(fd, buf, len, (off64_t)addr);
     close(fd);
     return r;
 }
