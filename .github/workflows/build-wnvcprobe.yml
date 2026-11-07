@@ -16,14 +16,18 @@ jobs:
           unzip -q android-ndk-r26d-linux.zip
           echo "$PWD/android-ndk-r26d/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
 
-      - name: Build wnvc_probe
+      - name: Build
         run: |
-          armv7a-linux-androideabi28-clang -O2 -Wall -o wnvc_probe wnvc_probe.c -ldl
-          ls -la wnvc_probe
-          file wnvc_probe || true
+          set -x
+          armv7a-linux-androideabi28-clang -O2 -Wall -o wnvc_probe wnvc_probe.c -ldl -lm
+          armv7a-linux-androideabi28-clang -O2 -Wall -o wnvc_probe2 wnvc_probe2.c -ldl -lm
+          ls -la wnvc_probe wnvc_probe2
+          file wnvc_probe wnvc_probe2 || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: wnvcprobe
-          path: wnvc_probe
+          path: |
+            wnvc_probe
+            wnvc_probe2
