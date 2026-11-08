@@ -113,10 +113,11 @@ int main(int argc, char **argv)
     fn_void      hid_open   = (fn_void)dlsym(so, "Nano_HidOpen");
     fn_open_t    hw_open    = (fn_open_t)dlsym(so, "Nano_HidrawOpen");
     fn_active_t  active     = (fn_active_t)dlsym(so, "Nano_HidrawActive");
-    fn_slot_int  auth       = (fn_slot_int)dlsym(so, "Nano_HidAuthentication");
+    typedef int (*fn_state_t)(int);
+    typedef int (*fn_auth_t)(void *);
+    fn_auth_t auth          = (fn_auth_t)dlsym(so, "Nano_HidAuthentication");
     fn_slot_int  ops_mic    = (fn_slot_int)dlsym(so, "Nano_HidrawOpsMic");
     fn_getaudio_t get_audio = (fn_getaudio_t)dlsym(so, "Nano_GetAudio");
-    typedef int (*fn_state_t)(int);
     fn_state_t dev_state    = (fn_state_t)dlsym(so, "Nano_HidrawDevState");
 
     if (!hid_open || !hw_open || !active || !auth || !ops_mic || !get_audio) {
