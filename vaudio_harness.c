@@ -116,7 +116,8 @@ int main(int argc, char **argv)
     fn_slot_int  auth       = (fn_slot_int)dlsym(so, "Nano_HidAuthentication");
     fn_slot_int  ops_mic    = (fn_slot_int)dlsym(so, "Nano_HidrawOpsMic");
     fn_getaudio_t get_audio = (fn_getaudio_t)dlsym(so, "Nano_GetAudio");
-    fn_slot_int  dev_state  = (fn_slot_int)dlsym(so, "Nano_HidrawDevState");
+    typedef int (*fn_state_t)(int);
+    fn_state_t dev_state    = (fn_state_t)dlsym(so, "Nano_HidrawDevState");
 
     if (!hid_open || !hw_open || !active || !auth || !ops_mic || !get_audio) {
         fprintf(stderr, "[FATAL] dlsym: hid_open=%p hw_open=%p active=%p auth=%p ops_mic=%p get_audio=%p\n",
@@ -144,7 +145,7 @@ int main(int argc, char **argv)
     long na = fd_snapshot(after, 256);
     int newfd = fd_diff(before, nb, after, na);
     fprintf(stderr, "[step] Nano_HidrawOpen(\"%s\",0) ret=%d newfd=%d devstate0=%d\n",
-            hidraw, ret, newfd, dev_state ? dev_state((void *)0, 0) : -1);
+            hidraw, ret, newfd, dev_state ? dev_state(0) : -1);
 
     if (newfd < 0) {
         fprintf(stderr, "[WARN] no new fd — HidrawOpen 可能校验失败（报告映射/VID:PID）\n");
