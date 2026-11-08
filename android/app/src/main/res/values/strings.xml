@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Murmur 语音输入</string>
+    <string name="ime_name">Murmur 语音输入法</string>
+    <string name="subtype_zh">中文（语音）</string>
+    <string name="login_title">登录豆包</string>
+</resources>
