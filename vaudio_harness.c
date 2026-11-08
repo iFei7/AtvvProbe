@@ -24,6 +24,8 @@
 #include <time.h>
 #include <math.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <linux/hidraw.h>
 
 typedef void (*fn_void)(void);
 typedef int (*fn_open_t)(const char *, int);
@@ -32,6 +34,7 @@ typedef int (*fn_slot_int)(void *, int);
 typedef int (*fn_getaudio_t)(void *, int);
 
 #define SLOT_BSS_OFF 0x3f548u   /* Nano 槽数组 .bss 偏移（r2 vaddr，PT_LOAD 基 0） */
+#define TBL_R2_OFF  0x32694u    /* 支持表 .data.rel.ro 偏移（2 项 × 0x10） */
 
 static double now_s(void)
 {
@@ -133,6 +136,57 @@ int main(int argc, char **argv)
     if (!slot0) {
         fprintf(stderr, "[FATAL] cannot locate lib load base\n");
         return 1;
+    }
+
+    /* 0a) 本机 hidraw 描述符 + rawinfo（对比支持表） */
+    {
+        int hfd = open(hidraw, O_RDWR);
+        if (hfd >= 0) {
+            int dsz = 0;
+            if (ioctl(hfd, HIDIOCGRDESCSIZE, &dsz) == 0) {
+                struct hidraw_report_descriptor rd;
+                rd.size = dsz > 4096 ? 4096 : dsz;
+                if (ioctl(hfd, HIDIOCGRDESC, &rd) == 0) {
+                    fprintf(stderr, "[desc] size=%d\n", dsz);
+                    for (int i = 0; i < rd.size; i += 32) {
+                        char hx[100] = {0};
+                        int m = rd.size - i > 32 ? 32 : rd.size - i;
+                        for (int k = 0; k < m; k++)
+                            sprintf(hx + k * 2, "%02x", rd.value[i + k]);
+                        fprintf(stderr, "[desc] %s\n", hx);
+                    }
+                }
+            }
+            struct hidraw_devinfo info = {0};
+            if (ioctl(hfd, HIDIOCGRAWINFO, &info) == 0)
+                fprintf(stderr, "[rawinfo] bustype=%d vendor=0x%04x product=0x%04x "
+                        "int[0]=0x%08x int[1]=0x%08x\n",
+                        info.bustype, (unsigned short)info.vendor,
+                        (unsigned short)info.product,
+                        *(unsigned int *)&info,
+                        *((unsigned int *)&info + 1));
+            close(hfd);
+        }
+    }
+
+    /* 0b) 运行时 dump 支持表（重定位后的真指针） */
+    {
+        unsigned char *tbl = (unsigned char *)(base + TBL_R2_OFF);
+        fprintf(stderr, "[table] @%p\n", (void *)tbl);
+        for (int i = 0; i < 2; i++) {
+            unsigned char *e = tbl + i * 0x10;
+            int id = *(int *)e;
+            unsigned char *dp = *(unsigned char **)(e + 12);
+            fprintf(stderr, "[table] entry%d id=0x%08x descptr=%p\n",
+                    i, id, (void *)dp);
+            if (dp) {
+                int dn = dp[0];
+                fprintf(stderr, "[table]   exp desc size=%d:", dn);
+                for (int k = 0; k < dn && k < 96; k++)
+                    fprintf(stderr, " %02x", dp[1 + k]);
+                fprintf(stderr, "\n");
+            }
+        }
     }
 
     /* 1) 初始化栈 */
