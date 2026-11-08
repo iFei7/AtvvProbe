@@ -439,7 +439,12 @@ class RemoteVoiceTrigger(
         lastPayload = payload
         // 关键：Android ≤28 的 writeCharacteristic 读的是 characteristic.getValue()，必须先 setValue
         char.value = payload
-        char.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+        // 本遥控器 ATT 应答"晚一拍"且睡眠时完全不回 —— DEFAULT 写会因首笔应答永不来而
+        // 阻塞整个 GATT 事务队列（实测 25s 超时，即使按键唤醒也不回写应答）。
+        // WRITE_TYPE_NO_RESPONSE 不需要应答，命令送达即执行——与 ptrace 背靠背灌帧等效但走标准协议。
+        // 实测 @0x0055/@0x004E props=0x0E 含 WRITE_NO_RESPONSE（0x04），可安全切换；
+        // @0x0051 props=0x12 无写属性会被本地属性检查拒绝，由 noWriteProps 分支跳过。
+        char.writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
         writing = true
         armTimeout(TIMEOUT_MS)
         if (!g.writeCharacteristic(char)) {
