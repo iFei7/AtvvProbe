@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Murmur 语音输入</string>
+    <string name="ime_name">Murmur 语音输入法</string>
+    <string name="subtype_zh">中文（语音）</string>
+    <string name="login_title">登录豆包</string>
+
+    <string name="assistant_name">语音助手</string>
+    <string name="assistant_channel_name">语音助手状态</string>
+    <string name="assistant_notif_title">Murmur 语音助手</string>
+    <string name="assistant_status_idle">待机 · 点「开始对话」说话</string>
+    <string name="assistant_action_start">开始对话</string>
+    <string name="assistant_action_stop">停止</string>
+    <string name="assistant_reply_prefix">回复：</string>
+</resources>
